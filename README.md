@@ -2,7 +2,7 @@
 
 Allows you to set up a producer/consumer relationship between the current thread (the producer / writer) and a new thread that writes data to an `OutputStream` (the consumer / writer). This is useful if you want to overlap (pipeline) two or more of the following:
 
-* Data production
+* Data production / computation
 * Data compression
 * Writing data to disk
 
