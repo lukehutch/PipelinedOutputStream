@@ -153,13 +153,14 @@ public class PipelinedOutputStream extends OutputStream {
                             break;
                         }
                         chunk.writeTo(out);
+                        bufferChunkRecycler.add(chunk);
                     } catch (Exception e) {
-                        consumerStreamClosed.set(true);
                         throw e;
                     }
                 }
             } finally {
                 // Close the underlying OutputStream once the buffer is flushed, or if exception is thrown
+                consumerStreamClosed.set(true);
                 out.close();
             }
             return null;
@@ -177,7 +178,7 @@ public class PipelinedOutputStream extends OutputStream {
                 }
             } else {
                 if (consumerStreamClosed.get()) {
-                    throw new IOException("Already closed");
+                    throw new IOException("Tried to write to closed stream");
                 }
                 BufferChunk bufferChunk = bufferChunkRecycler.poll();
                 if (bufferChunk == null) {
@@ -198,7 +199,7 @@ public class PipelinedOutputStream extends OutputStream {
         @Override
         public synchronized void write(int b) throws IOException {
             if (consumerStreamClosed.get()) {
-                throw new IOException("Already closed");
+                throw new IOException("Tried to write to closed stream");
             }
             BufferChunk bufferChunk = bufferChunkRecycler.poll();
             if (bufferChunk == null) {
@@ -215,11 +216,12 @@ public class PipelinedOutputStream extends OutputStream {
 
         @Override
         public void close() throws IOException {
-            consumerStreamClosed.set(true);
-            try {
-                bufferChunks.put(BufferChunk.POISON_PILL);
-            } catch (InterruptedException e) {
-                throw new IOException(e);
+            if (!consumerStreamClosed.getAndSet(true)) {
+                try {
+                    bufferChunks.put(BufferChunk.POISON_PILL);
+                } catch (InterruptedException e) {
+                    throw new IOException(e);
+                }
             }
         }
     }
