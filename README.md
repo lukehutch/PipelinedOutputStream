@@ -6,7 +6,7 @@ Allows you to set up a producer/consumer relationship between the current thread
 * Data compression
 * Writing data to disk
 
-For example, the following allows you to create one new thread for gzipping data produced by `produceAndWriteBuffer` (with a 64MB buffer inserted between data production and the `GZipOutputStream`), and another new thread for writing the gzipped data to disk (with a 32MB buffer inserted between the `GZIPOutputStream` and the `FileOutputStream`). This creates a chain of three threads, with producer-consumer relationships between the first and second thread, and between the second and third thread:
+For example, the following allows you to create one new thread for gzipping data produced by `produceAndWriteBuffer` (with a 64MB buffer inserted between data production and the `GZIPOutputStream`), and another new thread for writing the gzipped data to disk (with a 32MB buffer inserted between the `GZIPOutputStream` and the `FileOutputStream`). This creates a chain of three threads, with producer-consumer relationships between the first and second thread, and between the second and third thread:
 
 ```java
 try (OutputStream os =
@@ -17,6 +17,8 @@ try (OutputStream os =
     produceAndWriteData(os);
 }
 ```
+
+N.B. `GZIPOutputStream` is quite slow, so maybe consider using [`LZ4FrameOutputStream`](https://github.com/lz4/lz4-java) instead, if it's an option, otherwise the `GZIPOutputStream` stage of the pipeline can still end up being a major bottleneck.
 
 ## License
 
