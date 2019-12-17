@@ -22,7 +22,7 @@ try (OutputStream os =
 
 N.B. `GZIPOutputStream` is quite slow, so maybe consider using [`LZ4FrameOutputStream`](https://github.com/lz4/lz4-java) instead, if it's an option, otherwise the `GZIPOutputStream` stage of the pipeline can still end up being a major bottleneck.
 
-**See also: [`Yielder`](https://github.com/lukehutch/Yielder)**
+**See also: [`Producer`](https://github.com/lukehutch/Producer)**
 
 ## License
 
